@@ -7,31 +7,57 @@ import MealItem from "./MealItem/MealItem"
 
 const AvailableMeals = () => {
   const [meals, setMeals] = useState([])
-
-  const fetchMeals = async () => {
-    const response = await fetch(
-      "https://react-food-app-f725a-default-rtdb.firebaseio.com/meals.json"
-    )
-    const responseData = await response.json()
-
-    const loadedMeals = []
-
-    for (let key in responseData) {
-      loadedMeals.push({
-        id: key,
-        name: responseData[key].name,
-        description: responseData[key].description,
-        price: responseData[key].price,
-      })
-    }
-    if (loadedMeals.length) {
-      setMeals(loadedMeals)
-    }
-  }
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState()
 
   useEffect(() => {
-    fetchMeals()
+    const fetchMeals = async () => {
+      const response = await fetch(
+        "https://react-food-app-f725a-default-rtdb.firebaseio.com/meals.json"
+      )
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!")
+      }
+
+      const responseData = await response.json()
+
+      const loadedMeals = []
+
+      for (const key in responseData) {
+        loadedMeals.push({
+          id: key,
+          name: responseData[key].name,
+          description: responseData[key].description,
+          price: responseData[key].price,
+        })
+      }
+
+      setMeals(loadedMeals)
+      setIsLoading(false)
+    }
+
+    fetchMeals().catch((error) => {
+      setIsLoading(false)
+      setError(error.message)
+    })
   }, [])
+
+  if (isLoading) {
+    return (
+      <section className={`${classes.meals} ${classes["meals-loading"]}`}>
+        <p>Loading...</p>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className={`${classes.meals} ${classes.error}`}>
+        <p>{error}</p>
+      </section>
+    )
+  }
 
   const mealsList = meals.map((meal) => (
     <MealItem
@@ -42,6 +68,7 @@ const AvailableMeals = () => {
       price={meal.price}
     />
   ))
+
   return (
     <section className={classes.meals}>
       <Card>
