@@ -8,11 +8,9 @@ const MealItemForm = (props) => {
   const [amountIsValid, setAmountIsValid] = useState(true)
 
   const submitHandler = (event) => {
-    console.log("hello")
     event.preventDefault()
 
     const enteredAmount = amountInputRef.current.value
-    console.log(enteredAmount)
     const enteredAmountNumber = +enteredAmount
     if (
       enteredAmount.trim().length === 0 ||
